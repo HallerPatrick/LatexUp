@@ -50,7 +50,7 @@ def _generate(options: Options):
     write_up_folder = root / "write_up"
     write_up_folder.mkdir()
 
-    tex_file = write_up_folder / options.project_name / ".tex"
+    tex_file = write_up_folder / (options.project_name + ".tex")
 
     tex_content = setup_template(options)
 
@@ -60,14 +60,27 @@ def _generate(options: Options):
     if options.include_bib:
         copyfile(
             "./latex_up/templates/bib.bib",
-            write_up_folder / options.project_name / ".bib",
+            write_up_folder / (options.project_name + ".bib"),
+        )
+
+    cls_file = "./latex_up/templates/{cls}/{cls}.cls".format(cls=options.template)
+
+    if os.path.isfile(cls_file):
+        copyfile(
+            cls_file,
+            write_up_folder
+            / (options.project_name)
+            / "{}.cls".format(options.template),
         )
 
 
 def setup_template(options: Options) -> str:
+    """Read in template and collect all parts which should be added into latex document"""
     template_content = []
 
-    with open("./latex_up/templates/{}".format(options.template), "r") as template_file:
+    with open(
+        "./latex_up/templates/{cls}/{cls}.tex".format(cls=options.template), "r"
+    ) as template_file:
         template_lines = template_file.read()
 
     if options.include_enumerate:
